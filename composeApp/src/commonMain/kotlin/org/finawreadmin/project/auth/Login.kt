@@ -1,35 +1,27 @@
 package org.finawreadmin.project.auth
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun AdminLoginScreen(onLoginSuccess: () -> Unit) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var error by remember { mutableStateOf<String?>(null) }
+    var isLoading by remember { mutableStateOf(false) }
 
     Column(
-        modifier = Modifier.fillMaxSize().padding(24.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -42,6 +34,8 @@ fun AdminLoginScreen(onLoginSuccess: () -> Unit) {
             label = { Text("Email") }
         )
 
+        Spacer(Modifier.height(8.dp))
+
         OutlinedTextField(
             value = password,
             onValueChange = { password = it },
@@ -51,13 +45,27 @@ fun AdminLoginScreen(onLoginSuccess: () -> Unit) {
 
         Spacer(Modifier.height(16.dp))
 
-        Button(onClick = {
-            loginAsAdmin(email, password,
-                onSuccess = onLoginSuccess,
-                onError = { error = it.message }
-            )
-        }) {
+        Button(
+            onClick = {
+                isLoading = true
+                loginAsAdmin(email, password,
+                    onSuccess = {
+                        isLoading = false
+                        onLoginSuccess()
+                    },
+                    onError = {
+                        isLoading = false
+                        error = it.message
+                    }
+                )
+            }
+        ) {
             Text("Login")
+        }
+
+        if (isLoading) {
+            Spacer(Modifier.height(8.dp))
+            CircularProgressIndicator()
         }
 
         error?.let {

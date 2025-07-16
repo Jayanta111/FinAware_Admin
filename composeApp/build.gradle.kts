@@ -6,7 +6,6 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
-    id("com.google.gms.google-services")
 }
 
 val ktorVersion = "2.3.5" // Move this to the top so it's usable below
@@ -62,7 +61,9 @@ kotlin {
                 implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
 
                 // Firebase
-                implementation("com.google.firebase:firebase-auth-ktx:22.3.0")
+// FIREBASE
+                implementation(project.dependencies.platform("com.google.firebase:firebase-bom:33.16.0"))
+                implementation("com.google.firebase:firebase-auth")
                 implementation("com.google.firebase:firebase-firestore-ktx:24.10.1")
 
                 // Compose Material Icons (replace <compose_version> accordingly)
@@ -109,6 +110,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.support.annotations)
     debugImplementation(compose.uiTooling)
     implementation("org.jetbrains.compose.material3:material3:1.5.10")
 }
