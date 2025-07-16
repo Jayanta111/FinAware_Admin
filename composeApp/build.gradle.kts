@@ -89,6 +89,8 @@ android {
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
         versionName = "1.0"
+        buildConfigField("String", "GEMINI_API_KEY", "\"${property("GEMINI_API_KEY")}\"")
+
     }
 
     packaging {
@@ -111,6 +113,7 @@ android {
 
 dependencies {
     implementation(libs.support.annotations)
+    implementation(project(":composeApp"))
     debugImplementation(compose.uiTooling)
     implementation("org.jetbrains.compose.material3:material3:1.5.10")
     implementation("com.google.generativeai:google-generativeai:0.8.0") // Check for the latest version
@@ -119,4 +122,6 @@ dependencies {
     implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.10")
     implementation("io.ktor:ktor-client-content-negotiation:2.3.10")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+    implementation("com.google.ai.client:generativeai:0.5.0") // or latest
+
 }
