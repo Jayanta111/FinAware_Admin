@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "331054232104",
+    "project_id": "finawreadmin",
+    "storage_bucket": "finawreadmin.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:331054232104:android:2665a60932bbfbcf383b1d",
+        "android_client_info": {
+          "package_name": "org.finawreadmin.project"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDemDo0ljpC1ht7X-nMyt65rp6af2wkxUY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
