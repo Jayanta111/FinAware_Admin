@@ -113,4 +113,10 @@ dependencies {
     implementation(libs.support.annotations)
     debugImplementation(compose.uiTooling)
     implementation("org.jetbrains.compose.material3:material3:1.5.10")
+    implementation("com.google.generativeai:google-generativeai:0.8.0") // Check for the latest version
+    implementation("io.ktor:ktor-client-core:2.3.10") // Keep if you still need Ktor for other parts
+    implementation("io.ktor:ktor-client-cio:2.3.10")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.10")
+    implementation("io.ktor:ktor-client-content-negotiation:2.3.10")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
 }
