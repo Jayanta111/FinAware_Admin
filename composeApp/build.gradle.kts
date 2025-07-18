@@ -8,7 +8,7 @@ plugins {
     alias(libs.plugins.composeCompiler)
 }
 
-val ktorVersion = "2.3.5" // Move this to the top so it's usable below
+val ktorVersion = "2.3.10"
 
 kotlin {
     androidTarget {
@@ -19,9 +19,7 @@ kotlin {
     }
 
     listOf(
-        iosX64(),
-        iosArm64(),
-        iosSimulatorArm64()
+        iosX64(), iosArm64(), iosSimulatorArm64()
     ).forEach { iosTarget ->
         iosTarget.binaries.framework {
             baseName = "ComposeApp"
@@ -32,6 +30,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
+                // Compose Multiplatform
                 implementation(compose.runtime)
                 implementation(compose.foundation)
                 implementation(compose.material3)
@@ -39,38 +38,65 @@ kotlin {
                 implementation(compose.components.resources)
                 implementation(compose.components.uiToolingPreview)
 
+                // Lifecycle
                 implementation(libs.androidx.lifecycle.viewmodel)
                 implementation(libs.androidx.lifecycle.runtimeCompose)
-                implementation(projects.shared)
 
-                // Ktor for AI API integration
+                // Kotlin Coroutines (Multiplatform core)
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
+
+                // Ktor Client (Multiplatform)
                 implementation("io.ktor:ktor-client-core:$ktorVersion")
                 implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
-                implementation("io.ktor:ktor-client-json:$ktorVersion")
                 implementation("io.ktor:ktor-client-logging:$ktorVersion")
                 implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
+
+                // Shared module
+                implementation(projects.shared)
             }
         }
 
         val androidMain by getting {
             dependencies {
+                // Compose Android Preview
                 implementation(compose.preview)
                 implementation(libs.androidx.activity.compose)
 
-                // Android-specific Ktor engine
+                // Coil (Android-only)
+                implementation("io.coil-kt:coil-compose:2.2.2")
+
+                // Android Ktor Engine
                 implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
 
-                // Firebase
-// FIREBASE
+                // Firebase BOM + Modules
                 implementation(project.dependencies.platform("com.google.firebase:firebase-bom:33.16.0"))
                 implementation("com.google.firebase:firebase-auth")
                 implementation("com.google.firebase:firebase-firestore-ktx:24.10.1")
 
-                // Compose Material Icons (replace <compose_version> accordingly)
+                // Coroutines for Android
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.0")
+
+                // Material Icons
                 implementation("androidx.compose.material:material-icons-extended:1.6.0")
+
+                // Generative AI SDK (Android-only)
+                implementation("com.google.genai:google-genai:1.4.1")
             }
         }
 
+        val iosMain by creating {
+            dependsOn(commonMain)
+        }
+
+        named("iosX64Main") {
+            dependsOn(iosMain)
+        }
+        named("iosArm64Main") {
+            dependsOn(iosMain)
+        }
+        named("iosSimulatorArm64Main") {
+            dependsOn(iosMain)
+        }
         val commonTest by getting {
             dependencies {
                 implementation(libs.kotlin.test)
@@ -89,8 +115,14 @@ android {
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
         versionName = "1.0"
-        buildConfigField("String", "GEMINI_API_KEY", "\"${property("GEMINI_API_KEY")}\"")
 
+        // Load Gemini API Key securely from local.properties
+        val apiKey = project.findProperty("GEMINI_API_KEY") as String? ?: ""
+        buildConfigField("String", "GEMINI_API_KEY", "\"$apiKey\"")
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 
     packaging {
@@ -113,15 +145,7 @@ android {
 
 dependencies {
     implementation(libs.support.annotations)
-    implementation(project(":composeApp"))
     debugImplementation(compose.uiTooling)
-    implementation("org.jetbrains.compose.material3:material3:1.5.10")
-    implementation("com.google.generativeai:google-generativeai:0.8.0") // Check for the latest version
-    implementation("io.ktor:ktor-client-core:2.3.10") // Keep if you still need Ktor for other parts
-    implementation("io.ktor:ktor-client-cio:2.3.10")
-    implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.10")
-    implementation("io.ktor:ktor-client-content-negotiation:2.3.10")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
-    implementation("com.google.ai.client:generativeai:0.5.0") // or latest
-
+    implementation("androidx.navigation:navigation-compose:2.7.7")
+    implementation("androidx.compose.ui:ui:1.6.4")
 }

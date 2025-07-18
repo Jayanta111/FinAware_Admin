@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ਫਿਨਅਵੇਅਰ ਐਡਮਿਨ</string>
+    <string name="ai_content_generator">ਏਆਈ ਸਮੱਗਰੀ ਜਨਰੇਟਰ</string>
+    <string name="generate_via_ai">ਏਆਈ ਰਾਹੀਂ ਬਣਾਓ</string>
+    <string name="manual_entry">ਮੈਨੂਅਲ ਐਂਟਰੀ</string>
+    <string name="topic">ਵਿਸ਼ਾ</string>
+    <string name="generate_content">ਸਮੱਗਰੀ ਬਣਾਓ</string>
+    <string name="content">ਸਮੱਗਰੀ</string>
+    <string name="save_to_firebase">ਫਾਇਰਬੇਸ 'ਚ ਸਟੋਰ ਕਰੋ</string>
+    <string name="content_saved">✅ ਸਮੱਗਰੀ ਸੰਭਾਲੀ ਗਈ!</string>
+    <string name="content_failed">❌ ਸਮੱਗਰੀ ਸੰਭਾਲਣ 'ਚ ਅਸਫਲ।</string>
+    <string name="select_image">ਚਿੱਤਰ ਚੁਣੋ</string>
+</resources>

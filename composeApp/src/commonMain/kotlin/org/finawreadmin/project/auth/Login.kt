@@ -1,24 +1,33 @@
 package org.finAware.project.Ui
 
+
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
+import androidx.compose.ui.*
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.launch
-import org.finAware.project.firebase.AuthService
+import org.finawreadmin.project.Firebase.AuthViewModel
 
 @Composable
-fun LoginScreen(onLoginSuccess: () -> Unit) {
+fun AdminLoginScreen(
+    onLoginSuccess: () -> Unit,
+    viewModel: AuthViewModel,
+) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var error by remember { mutableStateOf<String?>(null) }
-    var loading by remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope()
+    var errorMessage by remember { mutableStateOf<String?>(null) }
 
-    Column(Modifier.padding(20.dp)) {
-        Text("Admin Login", style = MaterialTheme.typography.headlineMedium)
-        Spacer(Modifier.height(16.dp))
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text("Login", style = MaterialTheme.typography.headlineMedium)
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
             value = email,
@@ -27,38 +36,39 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
             modifier = Modifier.fillMaxWidth()
         )
 
-        Spacer(Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
         OutlinedTextField(
             value = password,
             onValueChange = { password = it },
             label = { Text("Password") },
+            visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier.fillMaxWidth()
         )
 
-        Spacer(Modifier.height(16.dp))
-
-        error?.let {
+        errorMessage?.let {
+            Spacer(modifier = Modifier.height(8.dp))
             Text(it, color = MaterialTheme.colorScheme.error)
-            Spacer(Modifier.height(8.dp))
         }
+
+        Spacer(modifier = Modifier.height(24.dp))
 
         Button(
             onClick = {
-                scope.launch {
-                    loading = true
-                    val success = AuthService.signInWithEmail(email, password)
-                    loading = false
+                viewModel.login(email, password) { success ->
                     if (success) {
                         onLoginSuccess()
                     } else {
-                        error = "Login failed. Please check credentials."
+                        errorMessage = "Login failed. Please check your credentials."
                     }
                 }
             },
-            enabled = email.isNotBlank() && password.isNotBlank()
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Text(if (loading) "Logging in..." else "Login")
+            Text("Sign In")
         }
+
+
     }
 }
+

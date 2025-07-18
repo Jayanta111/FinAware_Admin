@@ -2,8 +2,8 @@ package org.finawreadmin.project
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
+import org.finAware.project.Ui.AdminLoginScreen
 import org.finawreadmin.project.Ui.AdminDashboardScreen
-import org.finawreadmin.project.auth.AdminLoginScreen
 
 @Composable
 fun App() {
@@ -22,7 +22,8 @@ fun AdminAppRoot() {
         AdminLoginScreen(
             onLoginSuccess = {
                 isLoggedIn = true
-            }
+            },
+            viewModel = TODO()
         )
     }
 }

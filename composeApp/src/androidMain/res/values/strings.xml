@@ -1,3 +1,14 @@
 <resources>
     <string name="app_name">FinAware Admin</string>
+    <string name="google_api_key">AIzaSyDemDo0ljpC1ht7X-nMyt65rp6af2wkxUY</string>
+    <string name="ai_content_generator">AI Content Generator</string>
+    <string name="generate_via_ai">Generate via AI</string>
+    <string name="manual_entry">Manual Entry</string>
+    <string name="topic">Topic</string>
+    <string name="generate_content">Generate Content</string>
+    <string name="content">Content</string>
+    <string name="save_to_firebase">Save to Firebase</string>
+    <string name="content_saved">✅ Content saved!</string>
+    <string name="content_failed">❌ Failed to save content.</string>
+    <string name="select_image">Select Image</string>
 </resources>

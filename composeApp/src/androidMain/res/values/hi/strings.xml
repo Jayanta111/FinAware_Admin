@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">फिनअवेयर एडमिन</string>
+    <string name="ai_content_generator">एआई सामग्री जनरेटर</string>
+    <string name="generate_via_ai">एआई के माध्यम से जनरेट करें</string>
+    <string name="manual_entry">मैन्युअल प्रविष्टि</string>
+    <string name="topic">विषय</string>
+    <string name="generate_content">सामग्री जनरेट करें</string>
+    <string name="content">सामग्री</string>
+    <string name="save_to_firebase">फायरबेस में सहेजें</string>
+    <string name="content_saved">✅ सामग्री सहेजी गई!</string>
+    <string name="content_failed">❌ सामग्री सहेजने में विफल।</string>
+    <string name="select_image">छवि चुनें</string>
+</resources>
