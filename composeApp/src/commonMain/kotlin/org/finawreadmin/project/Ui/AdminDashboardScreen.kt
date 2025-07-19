@@ -26,6 +26,9 @@ fun AdminDashboardScreen() {
             )
         }
     ) { innerPadding ->
-        AdminNavigation(navController = navController)
+        AdminNavigation(
+            navController = navController,
+            modifier = Modifier.padding(innerPadding) // ✅ this line is the key
+        )
     }
 }

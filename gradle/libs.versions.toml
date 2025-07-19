@@ -17,6 +17,7 @@ kotlin = "2.2.0"
 ktor = "3.2.0"
 logback = "1.5.18"
 supportAnnotations = "28.0.0"
+generativeai = "0.9.0"
 
 [libraries]
 firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
@@ -37,6 +38,7 @@ ktor-serverCore = { module = "io.ktor:ktor-server-core-jvm", version.ref = "ktor
 ktor-serverNetty = { module = "io.ktor:ktor-server-netty-jvm", version.ref = "ktor" }
 ktor-serverTestHost = { module = "io.ktor:ktor-server-test-host-jvm", version.ref = "ktor" }
 support-annotations = { group = "com.android.support", name = "support-annotations", version.ref = "supportAnnotations" }
+generativeai = { group = "com.google.ai.client.generativeai", name = "generativeai", version.ref = "generativeai" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

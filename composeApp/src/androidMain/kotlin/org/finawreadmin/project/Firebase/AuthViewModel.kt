@@ -1,5 +1,4 @@
-package org.finawreadmin.project.Firebase
-
+package org.finawreadmin.project.firebase
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -23,10 +22,13 @@ class AuthViewModel(private val authService: AuthService) : ViewModel() {
         return authService.getCurrentUserEmail()
     }
 
-    class AuthViewModelFactory(private val service: AuthService) :
-        ViewModelProvider.Factory {
+    @Suppress("UNCHECKED_CAST")
+    class Factory(private val service: AuthService) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return AuthViewModel(service) as T
+            if (modelClass.isAssignableFrom(AuthViewModel::class.java)) {
+                return AuthViewModel(service) as T
+            }
+            throw IllegalArgumentException("Unknown ViewModel class")
         }
     }
 }

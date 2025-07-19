@@ -18,14 +18,9 @@ kotlin {
         }
     }
 
-    listOf(
-        iosX64(), iosArm64(), iosSimulatorArm64()
-    ).forEach { iosTarget ->
-        iosTarget.binaries.framework {
-            baseName = "ComposeApp"
-            isStatic = true
-        }
-    }
+    iosX64()
+    iosArm64()
+    iosSimulatorArm64()
 
     sourceSets {
         val commonMain by getting {
@@ -42,14 +37,17 @@ kotlin {
                 implementation(libs.androidx.lifecycle.viewmodel)
                 implementation(libs.androidx.lifecycle.runtimeCompose)
 
-                // Kotlin Coroutines (Multiplatform core)
+                // Coroutines
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
 
-                // Ktor Client (Multiplatform)
+                // Ktor Multiplatform
                 implementation("io.ktor:ktor-client-core:$ktorVersion")
                 implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
                 implementation("io.ktor:ktor-client-logging:$ktorVersion")
                 implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
+
+                // Gemini GenAI
+                implementation("com.google.genai:google-genai:1.4.1")
 
                 // Shared module
                 implementation(projects.shared)
@@ -58,45 +56,37 @@ kotlin {
 
         val androidMain by getting {
             dependencies {
-                // Compose Android Preview
+                // Android-only Compose
                 implementation(compose.preview)
                 implementation(libs.androidx.activity.compose)
 
-                // Coil (Android-only)
+                // Coil
                 implementation("io.coil-kt:coil-compose:2.2.2")
 
-                // Android Ktor Engine
+                // Android Ktor
                 implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
 
-                // Firebase BOM + Modules
+                // Firebase
                 implementation(project.dependencies.platform("com.google.firebase:firebase-bom:33.16.0"))
                 implementation("com.google.firebase:firebase-auth")
                 implementation("com.google.firebase:firebase-firestore-ktx:24.10.1")
+                implementation("com.google.firebase:firebase-storage-ktx")
 
-                // Coroutines for Android
+                // Coroutines
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.0")
 
-                // Material Icons
-                implementation("androidx.compose.material:material-icons-extended:1.6.0")
-
-                // Generative AI SDK (Android-only)
-                implementation("com.google.genai:google-genai:1.4.1")
+                // Material Icons Extended (fixes icon issue)
+                implementation("androidx.compose.material:material-icons-extended:1.6.1")
             }
         }
 
         val iosMain by creating {
             dependsOn(commonMain)
         }
+        named("iosX64Main") { dependsOn(iosMain) }
+        named("iosArm64Main") { dependsOn(iosMain) }
+        named("iosSimulatorArm64Main") { dependsOn(iosMain) }
 
-        named("iosX64Main") {
-            dependsOn(iosMain)
-        }
-        named("iosArm64Main") {
-            dependsOn(iosMain)
-        }
-        named("iosSimulatorArm64Main") {
-            dependsOn(iosMain)
-        }
         val commonTest by getting {
             dependencies {
                 implementation(libs.kotlin.test)
@@ -116,18 +106,24 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        // Load Gemini API Key securely from local.properties
-        val apiKey = project.findProperty("GEMINI_API_KEY") as String? ?: ""
-        buildConfigField("String", "GEMINI_API_KEY", "\"$apiKey\"")
+        buildConfigField("String", "GEMINI_API_KEY", "\"${project.properties["GEMINI_API_KEY"]}\"")
     }
 
     buildFeatures {
         buildConfig = true
     }
 
+    // ✅ FIX packaging conflict (for META-INF/INDEX.LIST)
     packaging {
         resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += setOf(
+                "META-INF/INDEX.LIST",
+                "META-INF/LICENSE.md",
+                "META-INF/LICENSE-notice.md",
+                "META-INF/DEPENDENCIES",
+                "META-INF/AL2.0",
+                "META-INF/LGPL2.1"
+            )
         }
     }
 
@@ -145,7 +141,12 @@ android {
 
 dependencies {
     implementation(libs.support.annotations)
+    implementation(libs.generativeai)
     debugImplementation(compose.uiTooling)
+
+    // UI + Icons
     implementation("androidx.navigation:navigation-compose:2.7.7")
     implementation("androidx.compose.ui:ui:1.6.4")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
+    implementation("androidx.compose.material:material-icons-extended:1.6.1")
 }
