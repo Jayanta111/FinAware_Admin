@@ -23,7 +23,7 @@ actual class ContentRepository {
         }
     }
 
-    private val serverUrl = "https://finaware-backend.onrender.com/api/content"
+    private val serverUrl = "https://finaware-backend.onrender.com/content"
 
     actual suspend fun saveContent(courseId: String, entry: LearningEntry): Result<Unit> {
         return try {
