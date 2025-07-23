@@ -17,6 +17,7 @@ import coil.compose.rememberAsyncImagePainter
 import io.ktor.client.HttpClient
 import org.finawreadmin.project.API.fetchAllContent
 import org.finawreadmin.project.model.LearningEntry
+import kotlin.time.Clock.System
 
 @Composable
 fun ContentManagementScreen(
@@ -56,14 +57,32 @@ fun ContentManagementScreen(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Button(
-                onClick = { navController.navigate("contentGenerator/new") },
+                
+                
+                onClick = {
+                    val allIds = contentList.mapNotNull { entry ->
+                        entry.courseId?.removePrefix("course_")?.toIntOrNull()
+                    }
+
+                    val maxId = allIds.maxOrNull() ?: 0
+                    val nextId = "course_" + (maxId + 1).toString().padStart(3, '0')
+                    navController.navigate("contentGenerator/$nextId")
+
+                },
                 modifier = Modifier.weight(1f)
             ) {
                 Text("Add Manual Content")
             }
 
             Button(
-                onClick = { navController.navigate("ContentGeneratorAI/new") },
+                onClick = {    val allIds = contentList.mapNotNull { entry ->
+                    entry.courseId?.removePrefix("course_")?.toIntOrNull()
+                }
+
+                    val maxId = allIds.maxOrNull() ?: 0
+                    val nextId = "course_" + (maxId + 1).toString().padStart(3, '0')
+                    navController.navigate("contentGenerator/$nextId")
+                          },
                 modifier = Modifier.weight(1f)
             ) {
                 Text("Add AI Content")
@@ -101,6 +120,8 @@ fun ContentManagementScreen(
         }
     }
 }
+
+
 
 @Composable
 fun ContentCard(entry: LearningEntry) {

@@ -12,18 +12,22 @@ import androidx.navigation.NavController
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
+import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import io.ktor.http.*
+import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+
+// -------------------- Data Models --------------------
 
 @Serializable
 data class QuizQuestion(
     val question: String,
     val options: List<String>,
-    val correctAnswerIndex: Int // index of the correct option (0-3)
+    val correctAnswerIndex: Int
 )
 
 @Serializable
@@ -32,6 +36,8 @@ data class QuizPayload(
     val title: String,
     val questions: List<QuizQuestion>
 )
+
+// -------------------- Composable UI --------------------
 
 @Composable
 fun QuizBuilderScreen(courseId: String, title: String, navController: NavController) {
@@ -76,7 +82,7 @@ fun QuizBuilderScreen(courseId: String, title: String, navController: NavControl
 
             Text("Select Correct Answer:")
             Column {
-                listOf(option1, option2, option3, option4).forEachIndexed { index, option ->
+                listOf(option1, option2, option3, option4).forEachIndexed { index, _ ->
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         RadioButton(selected = correctAnswerIndex == index, onClick = { correctAnswerIndex = index })
                         Text("Option ${index + 1}")
@@ -137,10 +143,10 @@ fun QuizBuilderScreen(courseId: String, title: String, navController: NavControl
                             val success = submitQuiz(courseId, title, questionsList)
                             isSubmitting = false
                             if (success) {
-                                snackbarHostState.showSnackbar("Quiz saved!")
+                                snackbarHostState.showSnackbar("✅ Quiz saved!")
                                 navController.popBackStack()
                             } else {
-                                snackbarHostState.showSnackbar("Failed to submit quiz")
+                                snackbarHostState.showSnackbar("❌ Failed to submit quiz")
                             }
                         }
                     },
@@ -159,20 +165,37 @@ fun QuizBuilderScreen(courseId: String, title: String, navController: NavControl
     }
 }
 
-// Quiz logic
+// -------------------- Ktor Quiz Submission --------------------
+
 suspend fun submitQuiz(courseId: String, title: String, questions: List<QuizQuestion>): Boolean {
-    val client = HttpClient(CIO)
+    val client = HttpClient(CIO) {
+        install(ContentNegotiation) {
+            json(Json {
+                ignoreUnknownKeys = true
+                prettyPrint = true
+                isLenient = true
+            })
+        }
+    }
 
     return try {
-        val payload = QuizPayload(courseId, title, questions)
-        val response = client.post("https://finaware-backend.onrender.com/api/create-quiz") {
+        val payload = QuizPayload(courseId = courseId, title = title, questions = questions)
+
+        println("📤 SUBMITTING TO BACKEND:\n${Json.encodeToString(QuizPayload.serializer(), payload)}")
+
+        val response: HttpResponse = client.post("https://finaware-backend.onrender.com/create-quiz") {
             contentType(ContentType.Application.Json)
-            setBody(Json.encodeToString(payload))
+            accept(ContentType.Application.Json)
+            setBody(payload)
         }
+
+        val responseBody = response.bodyAsText()
+        println("✅ RESPONSE STATUS: ${response.status}")
+        println("📥 RESPONSE BODY: $responseBody")
 
         response.status == HttpStatusCode.OK || response.status == HttpStatusCode.Created
     } catch (e: Exception) {
-        println("Error submitting quiz: ${e.message}")
+        println("❌ Quiz submission failed: ${e.message}")
         false
     } finally {
         client.close()
