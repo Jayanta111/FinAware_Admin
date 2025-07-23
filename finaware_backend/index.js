@@ -3,7 +3,7 @@ const multer = require('multer');
 const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv').config(); // ✅ Load .env
-
+const Quiz = require('./models/Quiz');
 const LearningEntry = require('./models/LearningEntry');
 
 const app = express();
@@ -33,7 +33,7 @@ mongoose.connect(mongoURI, {
   });
 
 // ✅ Image upload route
-app.post('/upload', upload.single('image'), (req, res) => {
+app.post('/uploads', upload.single('image'), (req, res) => {
   if (!req.file) {
     return res.status(400).json({ error: 'No file uploaded' });
   }
@@ -52,34 +52,26 @@ app.post('/content', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-//Quize
-app.post("/create-quiz", async (req, res) => {
-  const { courseId, title, questions } = req.body;
-
-  if (!courseId || !title || !questions || !Array.isArray(questions)) {
-    return res.status(400).json({ error: "Invalid payload" });
-  }
-
+// Create or update quiz
+app.post('/create-quiz', async (req, res) => {
   try {
-    await db.collection("quizzes").insertOne({
-      courseId,
-      title,
-      questions,
-      createdAt: new Date(),
-    });
-
-    res.status(201).json({ message: "Quiz saved successfully" });
-  } catch (e) {
-    res.status(500).json({ error: "Failed to save quiz" });
+    console.log('📥 Received quiz payload:', JSON.stringify(req.body, null, 2));
+    const quiz = new Quiz(req.body);
+    await quiz.save();
+    res.status(201).json({ success: true, message: 'Quiz saved' });
+  } catch (error) {
+    console.error('❌ Error saving quiz:', error);
+    res.status(500).json({ success: false, message: error.message });
   }
 });
-// ✅ Content fetching route
+// content.routes.js or in main file
 app.get('/content', async (req, res) => {
   try {
-    const entries = await LearningEntry.find({});
-    res.status(200).json(entries);
+    console.log("📥 GET /content called");
+    const data = await LearningEntry.find({});
+    res.status(200).json(data);
   } catch (err) {
-    console.error('❌ Error fetching entries:', err);
+    console.error("❌ Failed to fetch content:", err);
     res.status(500).json({ error: err.message });
   }
 });
