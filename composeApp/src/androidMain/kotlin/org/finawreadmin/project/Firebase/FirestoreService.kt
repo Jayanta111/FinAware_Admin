@@ -6,28 +6,43 @@ import org.finawreadmin.project.model.LearningEntry
 
 object FirestoreService {
     private val firestore = FirebaseFirestore.getInstance()
+    private val contentCollection = firestore.collection("learningContent")
 
-    suspend fun saveEntry(topic: String, content: String) {
-        val entry = hashMapOf(
-            "topic" to topic,
-            "content" to content,
-            "timestamp" to System.currentTimeMillis()
-        )
-        firestore.collection("ai_learning_content").add(entry).await()
+    // Save a learning entry using courseId as document ID
+    suspend fun saveLearningEntry(entry: LearningEntry): Result<Unit> = try {
+        contentCollection.document(entry.courseId).set(entry).await()
+        Result.success(Unit)
+    } catch (e: Exception) {
+        Result.failure(e)
     }
 
-    suspend fun getAllEntries(): List<LearningEntry> {
-        val snapshot = firestore.collection("ai_learning_content")
-            .orderBy("timestamp")
-            .get()
-            .await()
+    // Fetch all learning entries
+    suspend fun getAllLearningEntries(): List<LearningEntry> {
+        return try {
+            val snapshot = contentCollection.orderBy("timestamp").get().await()
+            snapshot.documents.mapNotNull { doc ->
+                val courseId = doc.id
+                val title = doc.getString("title") ?: return@mapNotNull null
+                val intro = doc.getString("intro") ?: return@mapNotNull null
+                val imageUrl = doc.getString("imageUrl")
+                val example = doc.getString("example") ?: ""
+                val prevention = doc.getString("prevention") ?: ""
+                val quiz = doc.getString("quiz") ?: ""
+                val language = doc.getString("language") ?: ""
 
-        return snapshot.documents.mapNotNull {
-            val topic = it.getString("topic")
-            val content = it.getString("content")
-            if (topic != null && content != null) {
-                LearningEntry(topic, content)
-            } else null
+                LearningEntry(
+                    courseId = courseId,
+                    title = title,
+                    intro = intro,
+                    imageUrl = imageUrl,
+                    example = example,
+                    prevention = prevention,
+                    quiz = quiz,
+                    language = language
+                )
+            }
+        } catch (e: Exception) {
+            emptyList()
         }
     }
 }

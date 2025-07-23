@@ -1,26 +1,81 @@
 {
   "project_info": {
-    "project_number": "331054232104",
-    "project_id": "finawreadmin",
-    "storage_bucket": "finawreadmin.firebasestorage.app"
+    "project_number": "309970845760",
+    "project_id": "finaware-6768e",
+    "storage_bucket": "finaware-6768e.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:331054232104:android:2665a60932bbfbcf383b1d",
+        "mobilesdk_app_id": "1:309970845760:android:1cc47741824b228b825fa5",
         "android_client_info": {
-          "package_name": "org.finawreadmin.project"
+          "package_name": "org.finAware.project"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "309970845760-b64bbo7k5pfkrsnme3grgfl4vkptdf7m.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "org.finAware.project",
+            "certificate_hash": "a58ba7d31aa8ce4f3990be76ebbb24221eedf14c"
+          }
+        },
+        {
+          "client_id": "309970845760-4roluffptd6k3fq0282gqavescgafa03.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
-          "current_key": "AIzaSyDemDo0ljpC1ht7X-nMyt65rp6af2wkxUY"
+          "current_key": "AIzaSyDolgsHUkXTzb3OwXWK2WG_LfdnyQQv2po"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "309970845760-0asa4g83bior8o9opnrpsj48ptsoosnr.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:309970845760:android:40b793d1f692e3df825fa5",
+        "android_client_info": {
+          "package_name": "org.finawreadmin.project"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "309970845760-3p6tlko89uqcde6gisir3tibsnfh41fr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "org.finawreadmin.project",
+            "certificate_hash": "a58ba7d31aa8ce4f3990be76ebbb24221eedf14c"
+          }
+        },
+        {
+          "client_id": "309970845760-4roluffptd6k3fq0282gqavescgafa03.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDolgsHUkXTzb3OwXWK2WG_LfdnyQQv2po"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "309970845760-0asa4g83bior8o9opnrpsj48ptsoosnr.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

@@ -1,20 +1,27 @@
+@file:Suppress("UnstableApiUsage")
+
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.9.24"
+    id("com.google.gms.google-services")
 }
 
 val ktorVersion = "2.3.10"
+val serializationVersion = "1.6.3"
 
 kotlin {
     androidTarget {
-        @OptIn(ExperimentalKotlinGradlePluginApi::class)
-        compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_11)
+        compilations.all {
+            compilerOptions.configure {
+                jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+                freeCompilerArgs.add("-Xcontext-receivers")
+            }
         }
     }
 
@@ -25,7 +32,6 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                // Compose Multiplatform
                 implementation(compose.runtime)
                 implementation(compose.foundation)
                 implementation(compose.material3)
@@ -33,50 +39,49 @@ kotlin {
                 implementation(compose.components.resources)
                 implementation(compose.components.uiToolingPreview)
 
-                // Lifecycle
                 implementation(libs.androidx.lifecycle.viewmodel)
                 implementation(libs.androidx.lifecycle.runtimeCompose)
 
-                // Coroutines
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
 
-                // Ktor Multiplatform
                 implementation("io.ktor:ktor-client-core:$ktorVersion")
                 implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
                 implementation("io.ktor:ktor-client-logging:$ktorVersion")
                 implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
+                implementation("io.ktor:ktor-client-cio:$ktorVersion")
 
-                // Gemini GenAI
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$serializationVersion")
                 implementation("com.google.genai:google-genai:1.4.1")
-
-                // Shared module
-                implementation(projects.shared)
             }
         }
 
         val androidMain by getting {
             dependencies {
-                // Android-only Compose
                 implementation(compose.preview)
                 implementation(libs.androidx.activity.compose)
 
-                // Coil
                 implementation("io.coil-kt:coil-compose:2.2.2")
-
-                // Android Ktor
                 implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
 
-                // Firebase
-                implementation(project.dependencies.platform("com.google.firebase:firebase-bom:33.16.0"))
-                implementation("com.google.firebase:firebase-auth")
+                implementation(project.dependencies.platform("com.google.firebase:firebase-bom:32.7.3"))
+                implementation(libs.firebase.auth)
                 implementation("com.google.firebase:firebase-firestore-ktx:24.10.1")
                 implementation("com.google.firebase:firebase-storage-ktx")
 
-                // Coroutines
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.0")
+                implementation("io.grpc:grpc-okhttp:1.57.2")
+                implementation("io.grpc:grpc-protobuf-lite:1.57.2")
+                implementation("io.grpc:grpc-stub:1.57.2")
 
-                // Material Icons Extended (fixes icon issue)
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.0")
+                implementation("org.litote.kmongo:kmongo:4.11.0")
+                implementation("org.litote.kmongo:kmongo-coroutine:4.11.0")
+
+                implementation("androidx.navigation:navigation-compose:2.7.7")
                 implementation("androidx.compose.material:material-icons-extended:1.6.1")
+
+                implementation(libs.jetbrains.kotlinx.serialization.json)
+                implementation("com.halilibo.compose-richtext:richtext-ui-material3:0.17.0")
+
             }
         }
 
@@ -113,7 +118,6 @@ android {
         buildConfig = true
     }
 
-    // ✅ FIX packaging conflict (for META-INF/INDEX.LIST)
     packaging {
         resources {
             excludes += setOf(
@@ -122,7 +126,8 @@ android {
                 "META-INF/LICENSE-notice.md",
                 "META-INF/DEPENDENCIES",
                 "META-INF/AL2.0",
-                "META-INF/LGPL2.1"
+                "META-INF/LGPL2.1",
+                "META-INF/native-image/org.mongodb/bson/native-image.properties"
             )
         }
     }
@@ -134,19 +139,7 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
-}
-
-dependencies {
-    implementation(libs.support.annotations)
-    implementation(libs.generativeai)
-    debugImplementation(compose.uiTooling)
-
-    // UI + Icons
-    implementation("androidx.navigation:navigation-compose:2.7.7")
-    implementation("androidx.compose.ui:ui:1.6.4")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
-    implementation("androidx.compose.material:material-icons-extended:1.6.1")
 }
