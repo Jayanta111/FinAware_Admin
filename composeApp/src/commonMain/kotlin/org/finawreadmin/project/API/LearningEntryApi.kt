@@ -24,12 +24,18 @@ val client = HttpClient(CIO) {
     }
 }
 
-suspend fun postLearningEntry(entry: LearningEntry) {
-    val response = client.post("https://finaware-backend.onrender.com") {
+suspend fun postLearningEntry(entry: LearningEntry): String? {
+    val response = client.post("https://finaware-backend.onrender.com/content") {
         contentType(ContentType.Application.Json)
         setBody(entry)
     }
 
-    println("Server response: ${response.status}")
+    return if (response.status == HttpStatusCode.Created) {
+        val createdEntry = response.body<LearningEntry>() // or Map<String, String> if raw
+        println("✅ Created Course: ${createdEntry.courseId}")
+        createdEntry.courseId
+    } else {
+        println("❌ Error: ${response.status}")
+        null
+    }
 }
-

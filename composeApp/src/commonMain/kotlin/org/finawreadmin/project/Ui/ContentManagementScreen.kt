@@ -81,7 +81,7 @@ fun ContentManagementScreen(
 
                     val maxId = allIds.maxOrNull() ?: 0
                     val nextId = "course_" + (maxId + 1).toString().padStart(3, '0')
-                    navController.navigate("contentGenerator/$nextId")
+                    navController.navigate("ContentGeneratorAI/$nextId")
                           },
                 modifier = Modifier.weight(1f)
             ) {

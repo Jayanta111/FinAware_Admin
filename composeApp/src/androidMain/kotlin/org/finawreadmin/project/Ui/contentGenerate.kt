@@ -1,8 +1,10 @@
 package org.finawreadmin.project.Ui
 
+import android.R.attr.enabled
 import android.content.Context
 import android.net.Uri
 import android.os.Build
+import android.webkit.MimeTypeMap
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -31,7 +33,11 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import org.finawreadmin.project.model.LearningEntry
+import org.json.JSONObject
 import java.net.Inet4Address
 import java.net.NetworkInterface
 
@@ -98,17 +104,34 @@ actual fun ContentGeneratorScreen(navController: NavController, courseId: String
         Button(
             onClick = {
                 coroutineScope.launch {
+                    // Step 1: Upload image first (if not yet uploaded)
+                    if (imageUri != null && imageUrl == null) {
+                        imageUrl = uploadImageToServer(imageUri, context)
+                    }
+
+                    // Step 2: Stop if image upload failed
+                    if (imageUrl == null) {
+                        saveMessage = "❌ Image upload failed — content not saved"
+                        return@launch
+                    }
+
+                    // Step 3: Save content to backend
                     val httpClient = HttpClient(CIO) {
-                        install(ContentNegotiation) { json() }
+                        install(ContentNegotiation) {
+                            json(Json { ignoreUnknownKeys = true })
+                        }
                     }
 
                     try {
                         val isEmulator = Build.FINGERPRINT.contains("generic")
                         val detectedIp = getLocalIpAddress()
-                        val baseUrl = if (isEmulator) "http://${detectedIp ?: "10.0.2.2"}:8080" else "https://finaware-backend.onrender.com"
+                        val baseUrl = if (isEmulator) {
+                            "http://${detectedIp ?: "10.0.2.2"}:8080"
+                        } else {
+                            "https://finaware-backend.onrender.com"
+                        }
 
                         val entry = LearningEntry(
-                            courseId = courseId,
                             title = title.trim(),
                             imageUrl = imageUrl,
                             intro = intro.trim(),
@@ -125,10 +148,20 @@ actual fun ContentGeneratorScreen(navController: NavController, courseId: String
 
                         if (response.status.isSuccess()) {
                             saveMessage = "✅ Content saved successfully!"
-                            navController.navigate("quiz_builder/$courseId/${title.trim()}")
+
+                            // Step 4: Extract courseId from response if returned
+                            val responseBody = response.bodyAsText()
+                            val courseIdFromServer = JSONObject(responseBody).optString("courseId", "")
+
+                            if (courseIdFromServer.isNotBlank()) {
+                                navController.navigate("quiz_builder/$courseIdFromServer/${title.trim()}")
+                            } else {
+                                navController.navigate("quiz_builder/unknown/${title.trim()}")
+                            }
                         } else {
                             saveMessage = "❌ Save failed: ${response.status}"
                         }
+
                     } catch (e: Exception) {
                         saveMessage = "❌ Error: ${e.localizedMessage}"
                         e.printStackTrace()
@@ -200,7 +233,6 @@ fun LanguageRadioButton(
         Text(label)
     }
 }
-//Image Upload logic
 suspend fun uploadImageToServer(uri: Uri?, context: Context): String? {
     if (uri == null) return null
 
@@ -208,42 +240,51 @@ suspend fun uploadImageToServer(uri: Uri?, context: Context): String? {
     val bytes = inputStream.readBytes()
     inputStream.close()
 
-    val fileName = "upload_${System.currentTimeMillis()}.jpg"
+    val mimeType = context.contentResolver.getType(uri) ?: "image/jpeg"
+    val extension = MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType) ?: "jpg"
+    val fileName = "upload_${System.currentTimeMillis()}.$extension"
+
     val client = HttpClient(CIO) {
         install(HttpTimeout) {
             requestTimeoutMillis = 60_000
             connectTimeoutMillis = 30_000
             socketTimeoutMillis = 60_000
         }
+        install(ContentNegotiation) {
+            json(Json {
+                ignoreUnknownKeys = true
+                isLenient = true
+            })
+        }
     }
 
     return try {
         val response = withTimeout(60_000) {
-            client.post("https://finaware-backend.onrender.com/uploads") {
-                setBody(MultiPartFormDataContent(
-                    formData {
-                        append("file", bytes, Headers.build {
-                            append(HttpHeaders.ContentDisposition, "form-data; name=\"file\"; filename=\"$fileName\"")
-                            append(HttpHeaders.ContentType, "image/jpeg")
-                        })
-                    }
-                ))
-            }
+            client.submitFormWithBinaryData(
+                url = "https://finaware-backend.onrender.com/uploads",
+                formData = formData {
+                    append("image", bytes, Headers.build {
+                        append(HttpHeaders.ContentDisposition, "form-data; name=\"image\"; filename=\"$fileName\"")
+                        append(HttpHeaders.ContentType, mimeType)
+                    })
+                }
+            )
         }
 
-        client.close()
-
         if (response.status.isSuccess()) {
-            val body = response.bodyAsText()
-            val regex = Regex("\"imageUrl\"\\s*:\\s*\"([^\"]+)\"")
-            regex.find(body)?.groupValues?.get(1)
+            val responseBody = response.bodyAsText()
+            println("✅ Upload successful: $responseBody")
+
+            val jsonElement = Json.parseToJsonElement(responseBody)
+            jsonElement.jsonObject["imageUrl"]?.jsonPrimitive?.content
         } else {
-            println("Upload failed: ${response.status}")
+            println("❌ Upload failed: ${response.status}")
             null
         }
     } catch (e: Exception) {
-        println("Upload error: ${e.message}")
-        client.close()
+        println("❌ Upload error: ${e.localizedMessage}")
         null
+    } finally {
+        client.close()
     }
 }

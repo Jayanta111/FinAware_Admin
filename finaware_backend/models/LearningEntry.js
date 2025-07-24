@@ -1,8 +1,11 @@
 const mongoose = require("mongoose");
 
 const learningEntrySchema = new mongoose.Schema({
-  courseId: String,
-  title: String,
+ courseId: {
+    type: String,
+    required: true,
+    unique: true,
+  },  title: String,
   imageUrl: String,
   intro: String,
   example: String,
