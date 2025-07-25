@@ -136,7 +136,7 @@ fun ContentCard(entry: LearningEntry, navController: NavHostController) {
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            entry.imageUrl?.let { url ->
+            entry.imageAvailable.let { url ->
                 Image(
                     painter = rememberAsyncImagePainter(url),
                     contentDescription = null,

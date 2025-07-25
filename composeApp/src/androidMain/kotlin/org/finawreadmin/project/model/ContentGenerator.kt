@@ -45,18 +45,16 @@ actual class ContentGeneratorAI actual constructor(private val apiKey: String) {
 
             val (intro, example, prevention) = extractSections(generatedText)
 
-            val quiz = null
-            val imageUrl = String()
+            val imageUrl = ""
             val entry = LearningEntry(
                 courseId = courseId,
                 title = title,
-                imageUrl = imageUrl,
                 intro = intro,
                 example = example,
                 prevention = prevention,
-                quiz =  quiz,
                 language = language
-            )
+
+                )
 
             ContentRepository().saveContent(courseId, entry)
 

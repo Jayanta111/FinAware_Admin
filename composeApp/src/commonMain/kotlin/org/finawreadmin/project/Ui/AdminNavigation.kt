@@ -47,6 +47,11 @@ fun AdminNavigation(navController: NavHostController, modifier: Modifier = Modif
         }
 
         // ✅ Quiz builder screen
+        composable("quiz_builder/{courseId}/{title}") { backStackEntry ->
+            val courseId = backStackEntry.arguments?.getString("courseId") ?: ""
+            val title = backStackEntry.arguments?.getString("title") ?: ""
+            QuizBuilderScreen(courseId, title, navController)
+        }
         }
     }
 
