@@ -7,17 +7,18 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.serialization.Serializable
 import org.finawreadmin.project.model.LearningEntry
+import org.finawreadmin.project.model.QuizItem
 
 // Define your data class model (must match the JSON schema from Express/MongoDB)
 @Serializable
 data class LearningEntry(
-    val courseId: String,
+    val courseId: String? = null,
     val title: String,
     val imageUrl: String?,
     val intro: String,
     val example: String,
     val prevention: String,
-    val quiz: String,
+    val quiz: List<QuizItem> = emptyList(),
     val language: String
 )
 

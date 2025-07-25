@@ -47,21 +47,6 @@ fun AdminNavigation(navController: NavHostController, modifier: Modifier = Modif
         }
 
         // ✅ Quiz builder screen
-        composable(
-            route = "quiz_builder/{courseId}/{title}",
-            arguments = listOf(
-                navArgument("courseId") { type = NavType.StringType },
-                navArgument("title") { type = NavType.StringType }
-            )
-        ) { backStackEntry ->
-            val courseId = backStackEntry.arguments?.getString("courseId") ?: ""
-            val title = backStackEntry.arguments?.getString("title") ?: ""
-
-            QuizBuilderScreen(
-                courseId = courseId,
-                title = title,
-                navController = navController
-            )
         }
     }
-}
+
