@@ -12,6 +12,7 @@ plugins {
     id("com.google.gms.google-services")
 }
 
+
 val ktorVersion = "2.3.10"
 val serializationVersion = "1.6.3"
 
@@ -51,7 +52,6 @@ kotlin {
                 implementation("io.ktor:ktor-client-cio:$ktorVersion")
 
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$serializationVersion")
-                implementation("com.google.genai:google-genai:1.4.1")
             }
         }
 
@@ -65,7 +65,7 @@ kotlin {
 
                 implementation(project.dependencies.platform("com.google.firebase:firebase-bom:32.7.3"))
                 implementation(libs.firebase.auth)
-                implementation("com.google.firebase:firebase-firestore-ktx:24.10.1")
+                implementation("com.google.firebase:firebase-firestore-ktx")
                 implementation("com.google.firebase:firebase-storage-ktx")
 
                 implementation("io.grpc:grpc-okhttp:1.57.2")
@@ -80,13 +80,17 @@ kotlin {
                 implementation("androidx.compose.material:material-icons-extended:1.6.1")
 
                 implementation(libs.jetbrains.kotlinx.serialization.json)
-                implementation("com.halilibo.compose-richtext:richtext-ui-material3:0.17.0")
-
+                implementation("com.google.firebase:firebase-messaging")
+                implementation("com.squareup.okhttp3:okhttp:4.12.0")
+                implementation("com.google.ai.client.generativeai:generativeai:0.7.1")
             }
         }
 
         val iosMain by creating {
             dependsOn(commonMain)
+            dependencies {
+                implementation("io.ktor:ktor-client-darwin:$ktorVersion")
+            }
         }
         named("iosX64Main") { dependsOn(iosMain) }
         named("iosArm64Main") { dependsOn(iosMain) }
@@ -95,6 +99,7 @@ kotlin {
         val commonTest by getting {
             dependencies {
                 implementation(libs.kotlin.test)
+
             }
         }
     }
@@ -111,7 +116,7 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        buildConfigField("String", "GEMINI_API_KEY", "\"${project.properties["GEMINI_API_KEY"]}\"")
+        buildConfigField("String", "FIREBASE_GEMINI_API_KEY", "\"${project.properties["FIREBASE_GEMINI_API_KEY"]}\"")
     }
 
     buildFeatures {
@@ -144,5 +149,5 @@ android {
     }
 }
 dependencies {
-    implementation(libs.volley)
+    implementation(libs.generativeai)
 }

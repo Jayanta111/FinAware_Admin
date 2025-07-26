@@ -37,7 +37,7 @@ fun AdminNavigation(navController: NavHostController, modifier: Modifier = Modif
             arguments = listOf(navArgument("courseId") { type = NavType.StringType })
         ) { backStackEntry ->
             val courseId = backStackEntry.arguments?.getString("courseId") ?: ""
-            val apiKey = BuildConfig.GEMINI_API_KEY
+            val apiKey = BuildConfig.FIREBASE_GEMINI_API_KEY
 
             ContentGeneratorAIScreen(
                 navController = navController,

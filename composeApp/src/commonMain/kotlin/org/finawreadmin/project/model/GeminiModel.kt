@@ -2,24 +2,39 @@ package org.finawreadmin.project.model
 
 import kotlinx.serialization.Serializable
 
+// ✅ Request model sent to Gemini API
+@Serializable
+data class GeminiRequest(
+    val contents: List<GeminiContent>
+)
 
 @Serializable
-data class GeminiRequest(val contents: List<GeminiContent>)
+data class GeminiContent(
+    val parts: List<GeminiPart>
+)
 
 @Serializable
-data class GeminiContent(val parts: List<GeminiPart>)
+data class GeminiPart(
+    val text: String
+)
+
+// ✅ Response model received from Gemini API
+@Serializable
+data class GeminiResponse(
+    val candidates: List<GeminiCandidate>? = null
+)
 
 @Serializable
-data class GeminiPart(val text: String)
+data class GeminiCandidate(
+    val content: GeminiContentResponse
+)
 
 @Serializable
-data class GeminiResponse(val candidates: List<GeminiCandidate>? = null)
+data class GeminiContentResponse(
+    val parts: List<GeminiPartResponse>
+)
 
 @Serializable
-data class GeminiCandidate(val content: GeminiContentWrapper)
-
-@Serializable
-data class GeminiContentWrapper(val parts: List<GeminiPartWrapper>)
-
-@Serializable
-data class GeminiPartWrapper(val text: String)
+data class GeminiPartResponse(
+    val text: String
+)

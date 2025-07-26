@@ -1,8 +1,8 @@
 package org.finawreadmin.project.Firebase
 
+import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.auth.auth
 
 class AuthViewModel {
 

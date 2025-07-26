@@ -20,6 +20,5 @@ dependencies {
     implementation(libs.ktor.serverNetty)
     testImplementation(libs.ktor.serverTestHost)
     testImplementation(libs.kotlin.testJunit)
-    implementation("io.ktor:ktor-client-multipart:2.3.4")
 
 }

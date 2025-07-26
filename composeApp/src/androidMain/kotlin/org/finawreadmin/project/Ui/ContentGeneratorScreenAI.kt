@@ -24,10 +24,12 @@ actual fun ContentGeneratorAIScreen(
     var language by remember { mutableStateOf("en") }
     var result by remember { mutableStateOf<LearningEntry?>(null) }
     var loading by remember { mutableStateOf(false) }
+    var saving by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
+    var saved by remember { mutableStateOf(false) }
 
     val scope = rememberCoroutineScope()
-    val contentGenerator = remember { ContentGeneratorAI(apiKey) }
+    val contentGenerator = remember(apiKey) { ContentGeneratorAI(apiKey) }
     val repository = remember { ContentRepository() }
 
     Scaffold(
@@ -44,8 +46,12 @@ actual fun ContentGeneratorAIScreen(
         ) {
             OutlinedTextField(
                 value = title,
-                onValueChange = { title = it },
-                label = { Text("Enter Title") },
+                onValueChange = {
+                    title = it
+                    error = null
+                    saved = false
+                },
+                label = { Text("Enter Lesson Title (e.g. UPI Scam, Loan Fraud)") },
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -53,35 +59,40 @@ actual fun ContentGeneratorAIScreen(
 
             OutlinedTextField(
                 value = language,
-                onValueChange = { language = it },
-                label = { Text("Language (en, hi, pa)") },
+                onValueChange = {
+                    language = it
+                    error = null
+                    saved = false
+                },
+                label = { Text("Language Code (en, hi, pa, as)") },
                 modifier = Modifier.fillMaxWidth()
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // Generate button (only generates, does not save)
             Button(
                 onClick = {
                     scope.launch {
                         loading = true
                         error = null
-                        try {
-                            // 1. Generate content using Gemini
-                            val generated = contentGenerator.generateLearningEntry(title, language, courseId)
-                            result = generated
+                        result = null
+                        saved = false
 
-                            // 2. Save generated content to backend
-                            generated?.let {
-                                kotlinx.coroutines.delay(500) // small delay to update UI
-                                val saveResult = repository.saveContent(courseId, it)
-                                if (saveResult.isFailure) {
-                                    error = "Failed to save content: ${saveResult.exceptionOrNull()?.message}"
-                                }
-                            } ?: run {
-                                error = "Content generation failed."
+                        try {
+                            val generated = contentGenerator.generateLearningEntry(
+                                title = title,
+                                language = language,
+                                courseId = courseId
+                            )
+
+                            if (generated != null) {
+                                result = generated
+                            } else {
+                                error = "⚠️ Failed to generate content. Try another title."
                             }
                         } catch (e: Exception) {
-                            error = "Unexpected error: ${e.message}"
+                            error = "🚫 Unexpected error: ${e.message}"
                         } finally {
                             loading = false
                         }
@@ -89,7 +100,35 @@ actual fun ContentGeneratorAIScreen(
                 },
                 enabled = title.isNotBlank() && !loading
             ) {
-                Text(if (loading) "Generating..." else "Generate Content")
+                Text(if (loading) "Generating..." else "Generate Preview")
+            }
+
+            // Save button (only appears after preview)
+            if (result != null && !saved) {
+                Spacer(modifier = Modifier.height(12.dp))
+                Button(
+                    onClick = {
+                        scope.launch {
+                            saving = true
+                            error = null
+                            try {
+                                val saveResult = repository.saveContent(courseId, result!!)
+                                if (saveResult.isSuccess) {
+                                    saved = true
+                                } else {
+                                    error = "❌ Failed to save content: ${saveResult.exceptionOrNull()?.message}"
+                                }
+                            } catch (e: Exception) {
+                                error = "❌ Save failed: ${e.message}"
+                            } finally {
+                                saving = false
+                            }
+                        }
+                    },
+                    enabled = !saving
+                ) {
+                    Text(if (saving) "Saving..." else "Save to Database")
+                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -100,17 +139,34 @@ actual fun ContentGeneratorAIScreen(
                     color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.bodyMedium
                 )
-                Spacer(modifier = Modifier.height(8.dp))
             }
 
+            if (saved) {
+                Text(
+                    text = "✅ Content saved successfully!",
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
             result?.let {
-                Text("📘 Title: ${it.title}", style = MaterialTheme.typography.titleMedium)
-                Spacer(modifier = Modifier.height(8.dp))
-                Text("📝 Intro:\n${it.intro}")
-                Spacer(modifier = Modifier.height(8.dp))
-                Text("📖 Example:\n${it.example}")
-                Spacer(modifier = Modifier.height(8.dp))
-                Text("🛡️ Prevention:\n${it.prevention}")
+                Divider()
+                Text("📘 Title: ${it.title}", style = MaterialTheme.typography.titleLarge)
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Text("🧠 Introduction:", style = MaterialTheme.typography.titleMedium)
+                Text(it.intro, style = MaterialTheme.typography.bodyMedium)
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Text("📖 Example / Case Study:", style = MaterialTheme.typography.titleMedium)
+                Text(it.example, style = MaterialTheme.typography.bodyMedium)
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Text("🛡️ Prevention Tips:", style = MaterialTheme.typography.titleMedium)
+                Text(it.prevention, style = MaterialTheme.typography.bodyMedium)
+                Divider(modifier = Modifier.padding(top = 16.dp))
             }
         }
     }

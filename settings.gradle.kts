@@ -5,6 +5,8 @@ pluginManagement {
     repositories {
         google() // ✅ No mavenContent filter here
         mavenCentral()
+        maven("https://maven.pkg.jetbrains.space/public/p/ktor/eap")
+
         gradlePluginPortal()
     }
     plugins {
@@ -16,6 +18,8 @@ dependencyResolutionManagement {
     repositories {
         google() // ✅ No mavenContent filter here either
         mavenCentral()
+        maven("https://maven.pkg.jetbrains.space/public/p/ktor/eap")
+
     }
 }
 
